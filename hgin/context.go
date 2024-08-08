@@ -9,14 +9,18 @@ import (
 type H map[string]any
 
 type Context struct {
+	// origin objects
 	Writer http.ResponseWriter
 	Req    *http.Request
-
+	// request info
 	Path   string
 	Method string
 	Params map[string]string // 动态路由参数
-
+	// response info
 	StatusCode int
+	// middleware
+	handlers []HandlerFunc
+	index    int // index 记录当前执行到第几个中间件
 }
 
 func newContext(w http.ResponseWriter, req *http.Request) *Context {
@@ -25,11 +29,39 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 		Req:    req,
 		Path:   req.URL.Path,
 		Method: req.Method,
+		index:  -1,
 	}
 }
+
+// Next 执行下一个中间件
+//
+//	func A(c *Context) {
+//	   part1
+//	   c.Next()
+//	   part2
+//	}
+//
+//	func B(c *Context) {
+//	   part3
+//	   c.Next()
+//	   part4
+//	}
+//
+// c.handlers 此时为 [A, B, Handler]，
+// 最终的顺序是part1 -> part3 -> Handler -> part 4 -> part2，
+// 洋葱模型
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index < s; c.index++ {
+		c.handlers[c.index](c)
+	}
+}
+
 func (c *Context) Param(key string) string {
 	return c.Params[key]
 }
+
 func (c *Context) PostForm(key string) string {
 	return c.Req.FormValue(key)
 }

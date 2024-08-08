@@ -2,6 +2,7 @@ package hgin
 
 import (
 	"net/http"
+	"strings"
 )
 
 // HandlerFunc 定义请求处理器
@@ -24,7 +25,14 @@ func New() *Engine {
 }
 
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	var middlewares []HandlerFunc
+	for _, group := range engine.groups {
+		if strings.HasPrefix(req.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
 	context := newContext(w, req)
+	context.handlers = middlewares
 	engine.router.handle(context)
 }
 
