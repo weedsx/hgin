@@ -10,13 +10,17 @@ type HandlerFunc func(c *Context)
 // Engine 实现 ServeHTTP 接口
 type Engine struct {
 	router *router
+
+	*RouterGroup // 继承 RouterGroup
+	groups       []*RouterGroup
 }
 
 // New Engine 的构造器
 func New() *Engine {
-	return &Engine{
-		router: newRouter(),
-	}
+	engine := &Engine{router: newRouter()}
+	engine.RouterGroup = &RouterGroup{engine: engine}
+	engine.groups = []*RouterGroup{engine.RouterGroup}
+	return engine
 }
 
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
