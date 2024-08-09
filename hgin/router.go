@@ -36,11 +36,15 @@ func (r *router) addRoute(method string, pattern string, handler HandlerFunc) {
 	log.Printf("Route %4s - %s", method, pattern)
 }
 
+// handle 执行请求的函数处理链
+//
+// middleware -> Next() -> route handler -> Next() return -> Execute the rest of the middleware
 func (r *router) handle(c *Context) {
 	n, params := r.getRoute(c.Method, c.Path)
 	if n != nil {
 		c.Params = params
 		key := c.Method + "-" + n.pattern
+		// 将用户的路由处理函数添加到 handlers 末尾
 		c.handlers = append(c.handlers, r.handlers[key])
 	} else {
 		c.handlers = append(c.handlers, func(c *Context) {

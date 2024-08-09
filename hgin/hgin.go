@@ -1,6 +1,7 @@
 package hgin
 
 import (
+	"html/template"
 	"net/http"
 	"strings"
 )
@@ -14,6 +15,10 @@ type Engine struct {
 
 	*RouterGroup // 继承 RouterGroup
 	groups       []*RouterGroup
+
+	htmlTemplates *template.Template // for html render
+	funcMap       template.FuncMap   // for html render
+
 }
 
 // New Engine 的构造器
@@ -33,6 +38,7 @@ func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	context := newContext(w, req)
 	context.handlers = middlewares
+	context.engine = engine
 	engine.router.handle(context)
 }
 
@@ -45,6 +51,14 @@ func (engine *Engine) GET(pattern string, handler HandlerFunc) {
 }
 func (engine *Engine) POST(pattern string, handler HandlerFunc) {
 	engine.addRoute("POST", pattern, handler)
+}
+
+func (engine *Engine) SetFuncMap(funcMap template.FuncMap) {
+	engine.funcMap = funcMap
+}
+
+func (engine *Engine) LoadHTMLGlob(pattern string) {
+	engine.htmlTemplates = template.Must(template.New("").Funcs(engine.funcMap).ParseGlob(pattern))
 }
 
 // Run 开启一个 HTTP 服务
