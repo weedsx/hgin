@@ -2,7 +2,6 @@ package hgin
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -17,9 +16,9 @@ func newTestRouter() *router {
 }
 
 func TestParsePattern(t *testing.T) {
-	ok := reflect.DeepEqual(parsePattern("/p/:name"), []string{"p", ":name"})
-	ok = ok && reflect.DeepEqual(parsePattern("/p/*"), []string{"p", "*"})
-	ok = ok && reflect.DeepEqual(parsePattern("/p/*name/*"), []string{"p", "*name"})
+	ok := slicesEqual(parsePattern("/p/:name"), []string{"p", ":name"})
+	ok = ok && slicesEqual(parsePattern("/p/*"), []string{"p", "*"})
+	ok = ok && slicesEqual(parsePattern("/p/*name/*"), []string{"p", "*name"})
 	if !ok {
 		t.Fatal("test parsePattern failed")
 	}
@@ -42,4 +41,16 @@ func TestGetRoute(t *testing.T) {
 	}
 
 	fmt.Printf("matched path: %s, params['name']: %s\n", n.pattern, ps["name"])
+}
+
+func slicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
