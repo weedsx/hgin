@@ -101,7 +101,7 @@ func (c *Context) Data(code int, data []byte) {
 }
 
 func (c *Context) Fail(code int, err string) {
-	// todo
+	c.index = len(c.handlers)
 	c.JSON(code, H{"message": err})
 }
 

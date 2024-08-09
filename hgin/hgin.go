@@ -29,6 +29,13 @@ func New() *Engine {
 	return engine
 }
 
+// Default 默认 日志打印 和 错误处理(堆栈打印) 中间件
+func Default() *Engine {
+	engine := New()
+	engine.Use(Logger(), Recovery())
+	return engine
+}
+
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	var middlewares []HandlerFunc
 	for _, group := range engine.groups {
