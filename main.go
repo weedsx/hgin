@@ -12,13 +12,19 @@ func main() {
 func StartServer() {
 	r := hgin.Default()
 	r.GET("/", func(c *hgin.Context) {
-		c.String(http.StatusOK, "Hello Howard\n")
+		c.String(http.StatusOK, "Hello hgin")
 	})
-	// index out of range for testing Recovery()
 	r.GET("/panic", func(c *hgin.Context) {
-		names := []string{"Howard"}
+		names := []string{"hgin"}
 		c.String(http.StatusOK, names[100])
 	})
 
-	r.Run(":8080")
+	v2 := r.Group("/v2")
+	{
+		v2.GET("/hello/:name", func(c *hgin.Context) {
+			c.String(http.StatusOK, "hello %s, you're at %s\n", c.Param("name"), c.Path)
+		})
+	}
+
+	_ = r.Run(":9999")
 }
