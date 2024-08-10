@@ -9,7 +9,7 @@ require hgin v0.0.0
 
 replace hgin => ./hgin
 ```
-2. 使用1
+2. 使用
 ```go
 func main() {
     r := hgin.Default()
