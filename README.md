@@ -3,7 +3,7 @@
 
 ## 使用
 > 未发布
-1. 下载 hgin 包到项目目录下，在 go.mod 引入
+1. 下载 hgin 包 (pub 分支) 到项目目录下，在 go.mod 引入
 ```
 require hgin v0.0.0
 
